@@ -1,0 +1,138 @@
+﻿@page
+@model Tree.Pages.IndexModel
+@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="row m-0" >
+    <div class="col-6 border 1px" style="background-color:aliceblue; border-radius:5px">
+        <div>
+            <p class="mt-1 mb-1" style="font-size:18px">صفت ریشه را انتخاب کنید : </p>
+        </div>
+<div class="form-group p-2" id="select" style="display: grid;  grid-template-columns: repeat(5, 2fr);  gap: 0px;  ">
+    @for(int i=0;i<Model.AllAttributes.Count;i++)
+    {
+        <div class="form-check form-check-inline" style="font-size:12px">
+
+            <input asp-for=@Model.AllAttributes[i] type="radio" name="radio" id=@Model.AllAttributes[i].Id value=@Model.AllAttributes[i].Title   onclick=setContent(@Model.AllAttributes[i].Id)/>
+
+            <label for=@Model.AllAttributes[i]>@Model.AllAttributes[i].Title</label>
+
+        </div>
+    }
+</div>
+    </div>
+    <div class="col-1 ">
+        </div>
+    <div class="col-5 border 1px">
+        <div>
+            <p class="mt-1 mb-1" style="font-size:18px">نمایش درختی : </p>
+        </div>
+<div id="jstreeId" class="p-2 m-2">
+
+</div>
+</div>
+</div>
+@* <form method="post" id="Submit" class="p-2 m-1">
+    @*  <input type="text" placeholder="عنوان" asp-for="Attribute.Title" />
+    <input type="number" placeholder="کد" asp-for="Attribute.Code" />
+    <input type="checkbox" placeholder="صفت خوب است؟" asp-for="Attribute.IsGood" /> 
+    <input type="hidden" name="selectedItems" id="selectedItems" />
+    <input type="submit" value="submit" asp-page-handler="Submit" />
+</form> 
+*@
+
+
+@section Scripts
+{
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+<script type="text/javascript">
+      
+
+     
+
+    var check = 1;
+    function addFunc() {
+        debugger
+        if (check == 0)
+        {
+            document.getElementById("add").style.display = "none";
+            check = 1;
+        }
+       else {
+           document.getElementById("add").style.display = "block";
+           check = 0;
+       }
+    }
+
+        function setContent(nodeId)
+        {
+            // $('#jstreeId').empty();
+            debugger
+            $('#jstreeId').on('changed.jstree').jstree({
+                    "core": {
+                        "animation": 0,
+                        "check_callback": true,
+                        'force_text': true,
+                        "checkbox": {
+                            "keep_selected_style": false
+                        },
+                        "themes": { 
+                           "variant": "large"
+                           },
+                        'data': {
+                        // "url": function (node) {
+                        //     return '?handler=Tree&id=' + nodeId;
+                        // },
+                            'url':  '?handler=Tree&id=' + nodeId,
+                            'data': function (node) {
+                                return { 'id': node.id };
+                            }
+                        }
+
+                    },
+                "types": {
+                    "#": { "max_children": 1, "max_depth": 4, "valid_children": ["root"] },
+                    "root": { "icon": "/static/3.3.9/assets/images/tree_icon.png", "valid_children": ["default"] },
+                    "default": { "valid_children": ["default", "file"] },
+                    "file": { "icon": "glyphicon glyphicon-file", "valid_children": [] }
+                },
+                    "themes": {
+                        "rtl": true,
+                        "theme": "default-rtl",
+                        //"url": "js/libs/jstree/themes/default-rtl/style.css",
+                        "dots": false,
+                        "icons": false
+                    },
+                        "plugins": []
+                    });
+
+
+
+            ///////////////////////////////////
+            // $.ajax({
+            //     url: "?handler=Tree&id=" + id,
+            //     type: "Get",
+            //     async: false,
+            //     success: function (result) {
+            document.getElementById("jstreeId").style.display = "block";
+            //     }
+            // });
+            $.ajax({
+                url: "?handler=Tree&id=" + nodeId,
+                type: "Get",
+                async: false,
+                success: function (result) {
+                    debugger
+                    $('#jstreeId').jstree(true).settings.core.data = result;
+                }
+            });
+
+            var tree = $('#jstreeId').jstree(true);
+            process = false;
+            $('#jstreeId').on('refresh.jstree', function () { process = true; });
+            tree.refresh();
+
+        }
+    </script>
+}
